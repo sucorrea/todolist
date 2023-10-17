@@ -23,13 +23,14 @@ import lombok.var;
 @RequestMapping("/tasks")
 
 public class TaskController {
+    String idUsuario = "idUser";
 
     @Autowired
     private ITaskRepository taskRepository;
 
     @PostMapping("/")
     public ResponseEntity create(@RequestBody TaskModel taskModel, HttpServletRequest request) {
-        var idUser = request.getAttribute("idUser");
+        var idUser = request.getAttribute(idUsuario);
         taskModel.setIdUser((UUID) idUser);
 
         var currentDate = LocalDateTime.now();
@@ -49,10 +50,9 @@ public class TaskController {
 
     @GetMapping("/")
     public List<TaskModel> list(HttpServletRequest request) {
-        var idUser = request.getAttribute("idUser");
-        var tasks = this.taskRepository.findByIdUser((UUID) idUser);
+        var idUser = request.getAttribute(idUsuario);
+        return this.taskRepository.findByIdUser((UUID) idUser);
 
-        return tasks;
     }
 
     @PutMapping("/{id}")
@@ -63,7 +63,7 @@ public class TaskController {
         if (task == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tarefa não encontrada");
         }
-        var idUser = request.getAttribute("idUser");
+        var idUser = request.getAttribute(idUsuario);
 
         if (!task.getIdUser().equals(idUser)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
